@@ -1,9 +1,10 @@
 <?php
 class defaultListObject {
     public $datarows = [];
+    //~ public $objects = [];
     public $sensitivedatarow = [];
     public $labelrow = [];
-    public $table = ['name'=>'','primarykey'=>'','userkey'=>''];
+    public $table = ['name'=>'','label'=>'','primarykey'=>'','userkey'=>''];
     public $order = '';
     public $direction = 'DESC';
     public $defaultFilters = [];
@@ -23,6 +24,7 @@ class defaultListObject {
         $this->sqlParams = $this->getSqlParams();
         
         $this->datarows = $this->getDatarows();
+        $this->objects = $this->getObjects();
     }
     
     function setDefaultFilters(){
@@ -89,6 +91,17 @@ class defaultListObject {
         return $datarows;
     }
     
+    function getObjects(){
+        $objects=[];
+        $datarows = $this->getDatarows();
+        foreach($datarows as $k=>$datarow){
+            $id = $datarow[$this->table['primarykey']];
+            $obj = new $this->table['label']($id);
+            $objects[] = $obj->getJson();
+        }
+        return $objects;
+    }
+    
     function getSafeDatarows(){
         if(count($this->sensitivedatarow)==0){return $this->datarows;}
         
@@ -105,15 +118,20 @@ class defaultListObject {
     function getJson(){
 		$datarows = $this->getSafeDatarows();
          
-		$json = json_encode([
+		$json = [
 				'labelrow'=>$this->labelrow,
 				'order'=>$this->order,
 				'direction'=>$this->direction,
 				'filters'=>$this->filters,
-				'datarows'=>$datarows
-			]);
+				'datarows'=>$datarows,
+				'objects'=>$this->objects
+			];
             
         return $json;
+    }
+    
+    function sendJson(){
+        return json_encode($this->getJson());
     }
 }
 ?>

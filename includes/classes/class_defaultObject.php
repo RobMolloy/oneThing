@@ -12,16 +12,16 @@ class defaultObject {
     //~ public $checks = ['user'=>True];
     public $sensitivedatarow = [];
     public $labelrow = [];
-    public $table = ['name'=>'','primarykey'=>'','userkey'=>''];
+    public $table = ['name'=>'','label'=>'','primarykey'=>'','userkey'=>''];
 	
     function __construct($id=''){
         $this->init($id);
     }
     
     function init($id=''){
-        //~ not required
-        //~ populates each key of this->datarow with current info or blank
-		//~ $this->populateDatarow();
+        //~ required when no id is passed into new object
+        //~ populates the value of each key of this->datarow with current info or blank
+		$this->populateDatarow();
         
         //~ populates labelrow with clean name or db name if $dev
 		$this->labelrow = $this->getLabelRow();
@@ -68,7 +68,7 @@ class defaultObject {
     }
     
     function getEmptyDatarow(){
-		$db = openDb();
+        $db = openDb();
         $stmt = $db->prepare("SELECT * ,IFNULL(max(".$this->table['primarykey']."),'') as thisid FROM ".$this->table['name']." LIMIT 1");
         $stmt->execute();
          
@@ -161,19 +161,20 @@ class defaultObject {
 				$keyQmarkString = implode(array_keys($datarow),'=?,').'=?';
 				$datarow[$this->table['primarykey']] = $id;
 				$sql = "UPDATE ".$this->table['name']." SET ".$keyQmarkString." WHERE ".$this->table['primarykey']."=?";
-			
 			} else {
 				$keyString = implode(array_keys($datarow),',');
 				$qmarkString = implode(array_fill(0,count($datarow),'?'),',');
 				$sql = "INSERT INTO ".$this->table['name']." (".$keyString.") VALUES (".$qmarkString.");";	
-			
 			}
 			$stmt = $db->prepare($sql);
 			$stmt = bindParameters($stmt,$datarow);
 			$stmt->execute();
-			
-			$id = $db->insert_id;
-            $this->success = ((int)$id==0 ? False : True);
+            if($this->exists){
+                $this->success = ($db->affected_rows>0 ? True : False);
+            } else {
+                $id = $db->insert_id;
+                $this->success = ((int)$id>0 ? True : False);
+            }
             $this->newlyAdded = ($this->success && !$this->exists ? True : False);
 			$db->close();
 			
@@ -248,7 +249,7 @@ class defaultObject {
 		//~ $datarow = $this->datarow;
 		//~ foreach($this->sensitivedatarow as $k=>$v){$datarow[$k] = $v;}
 		$datarow = $this->getSafeDatarow();
-        return json_encode([
+        return [
 				'exists'=>$this->exists,
 				'valid'=>$this->valid,
 				'success'=>$this->success,
@@ -256,7 +257,11 @@ class defaultObject {
 				'errors'=>$this->errors,
 				'datarow'=>$datarow,
 				'labelrow'=>$this->labelrow
-			]);
+			];
+    }
+    
+    function sendJson(){
+        return json_encode($this->getJson());
     }
 }
 ?>

@@ -4,10 +4,12 @@ session_start();
 
 //~ changes mode to developer mode
 global $dev;
-$dev = false;
+global $projectLabel;
+global $projectName;
 
-global $project_name;
-$project_name = 'One Thing';
+$dev = false;
+$projectLabel = 'One Thing2';
+$projectName = 'oneThing2';
 
 include('classes/class_defaultObject.php');
 include('classes/class_defaultListObject.php');
@@ -17,7 +19,7 @@ include('classes/class_thingList.php');
 
 //~ user functions
 //~ returns true if a user is logged in
-function userIsLoggedIn(){return isset($_SESSION['usr_id']);}
+function userIsLoggedIn(){global $projectName; return (isset($_SESSION['projectName']) && $_SESSION['projectName']==$projectName);}
 function getUserFirstName(){ return (userIsLoggedIn() ? $_SESSION['usr_first_name'] : ''); }
 function getUserLastName(){ return (userIsLoggedIn() ? $_SESSION['usr_last_name'] : ''); }
 function getUserEmail(){ return (userIsLoggedIn() ? $_SESSION['usr_email'] : ''); }
@@ -27,15 +29,21 @@ function getUserId(){ return (userIsLoggedIn() ? $_SESSION['usr_id'] : '0'); }
 //~ genericFunctions - used all/any page 
 //~ returns html for the header bar
 function getHeadTags($title=''){
-	global $project_name;
+	global $projectLabel;
+    $tng = new thing();
 	return '
-		<meta name="description" content="This is a default login page that can be used as a starting point for all future projects">
+		<meta name="description" content="This is a generic project that can be used as a starting point for all future projects">
 		<meta name="viewport" content="width=device-width initial-scale=1">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
-		<title>'.$project_name.' | '.$title .'</title>'
-		.getCss()
-		.getJs();
+		<title>'.$projectLabel.' | '.$title .'</title>
+        <script>
+            let emptyDatarows = {};
+            emptyDatarows[\''.$tng->table['label'].'\'] = JSON.parse(\''.$tng->sendJson().'\').datarow;
+            
+        </script>
+        '.getJs()
+		.getCss();
 }
 
 function getCss(){
@@ -51,35 +59,20 @@ function getJs(){
 }
 
 function getHeaderBarHtml(){
-	if(userIsLoggedIn()){
-		$loginOptionsHtml = '<button name="logoutbutton" onclick="ajaj({\'file\':\'login.nav.php\', \'nav\':\'submitLogout\', \'runOnReturn\':handleLogoutResponse})">Logout</button>';
-		$listArray = ['index.php'=>'Home','thing.php'=>'Things','thingList.php'=>'Thing List'];
-	} else {
-		$loginOptionsHtml = (getCurrentFilename()=='login.php' 
-							? ''
-							:'<span id="loginFormHeader">
-								<input type="text" name="usr_email" placeholder="Email">
-								<input type="password" name="usr_password" placeholder="Password">
-								<button name="loginButton" onclick="ajaj({\'file\':\'login.nav.php\', \'nav\':\'submitLogin\',\'getValuesFrom\':\'loginFormHeader\',\'runOnReturn\':handleLoginResponse});">Login</button>
-							</span>'
-						)
-						.'<a href="signup.php">Sign Up</a>';
-        $listArray = ['index.php'=>'Home'];
-	}
-    
-    $listOptionsHtmlArray = [];
-    foreach($listArray as $page=>$label){
-        $listOptionsHtmlArray[] = '<li><a href="'.$page.'">'.$label.'</a></li>';
+    if(userIsLoggedIn()){
+        $loginOptionsHtml = '<button name="logoutbutton" onclick="ajaj({\'file\':\'login.nav.php\', \'nav\':\'submitLogout\', \'runOnReturn\':handleLogoutResponse})">Logout</button>';
+    } else {
+        if(getCurrentFilename()=='login.php' || getCurrentFilename()=='index.php'){
+            $loginOptionsHtml = '<button onclick="goto(\'signup.php\');">Sign Up</button>';
+        }else{
+            $loginOptionsHtml = '<button onclick="goto(\'login.php\');">Log In</button>';
+        }
     }
 	return '<header>
-		<nav>
-			<a href="index.php"><img src="img/logoContrast.png" alt="romolo logo"></a>
-			<ul>'.implode($listOptionsHtmlArray).'</ul>
-			<div>
-				'.$loginOptionsHtml.'
-			</div>
-		</nav>
-	</header>';
+                <div><a href="index.php"><img src="img/logoContrast.png" alt="romolo logo"></a></div>
+                <div>'.$loginOptionsHtml.'</div>
+            </header>';
+			//~ <ul>'.implode($listOptionsHtmlArray).'</ul>
 }
 
 function getCurrentFilename(){
@@ -110,12 +103,11 @@ function trigger_notice($notice){
 }
   
 function openDb(){
-	$host = "localhost";
-	$dbUser = "rob";
-	$password = "robberrydb";
-	$database = "oneThingDB";
+    $local = True;
+    $dbCredsJsonString = file_get_contents('dbCreds/'.($local ? 'local' : 'server'));
+    $dbCreds=json_decode($dbCredsJsonString,True);
 
-	$dbConn = new mysqli($host,$dbUser,$password,$database);
+	$dbConn = new mysqli($dbCreds['host'],$dbCreds['dbUser'],$dbCreds['password'],$dbCreds['database']);
 
 	if($dbConn->connect_error){
 		die("Database Connection Error, Error No.: ".$dbConn->connect_errno." | ".$dbConn->connect_error);
@@ -163,12 +155,8 @@ function bindParameters($stmt,$originalArray=[]){
 	foreach($originalArray as $k=>$v){
 		$newArray[] = $v;
 	}
-	
-	//~ log_dump($originalArray);
-	//~ log_dump($newArray);
 	$string = str_repeat('s',count($newArray));
 	
-	//~ log_dump(count($newArray));
 	switch(count($newArray)){
 		case 0:
 			$stmt->bind_param($string);
@@ -258,7 +246,10 @@ function bindParameters($stmt,$originalArray=[]){
 	return $stmt;
 	
 }
- 
+
+function newObject($objectLabel=''){
+    return new $objLabel();
+} 
 //~ date functions
 /*use only timestamps for php - convert with js*/
 

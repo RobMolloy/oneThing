@@ -4,6 +4,7 @@ class user {
     public $datarow = [];
     public $sensitivedatarow = ['usr_password'=>''];
     public $labelrow = [];
+    public $table = ['name'=>'ont_users','primarykey'=>'usr_id'];
     public $tablename = 'ont_users';
     public $tableprimarykey = 'usr_id';
     public $errors = [];
@@ -23,6 +24,9 @@ class user {
         if($result!==False){
             $this->datarow = $result;
             $this->exists = True;
+        } else {
+            $this->datarow = $this->getEmptyDatarow();
+            $this->exists = False;
         }
     }
     
@@ -55,6 +59,8 @@ class user {
             ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 7);
             session_start();
         }
+        global $projectName;
+        $_SESSION['projectName'] = $projectName;
         $_SESSION['usr_id'] = $this->datarow['usr_id'];
         $_SESSION['usr_email'] = $this->datarow['usr_email'];
         $_SESSION['usr_first_name'] = $this->datarow['usr_first_name'];
@@ -77,9 +83,8 @@ class user {
         if($this->valid){
             $this->exists = True;
             $this->datarow = $emailResult;
+            $this->init();
         }
-        $this->datarow = $emailResult;
-        $this->init();
         return $this->valid;
     }
     
@@ -101,7 +106,6 @@ class user {
     
     function populateDatarow(){
         $updatedDatarow = $this->getEmptyDatarow();
-
         foreach($this->datarow as $k=>$v){
             $updatedDatarow[$k] = $v;
         }
@@ -122,7 +126,7 @@ class user {
             $db->close(); 
             
             if($result->num_rows==1){
-            return $result->fetch_assoc();
+                return $result->fetch_assoc();
             }
         }
         return False;

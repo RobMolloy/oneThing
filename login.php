@@ -6,12 +6,16 @@
 	<?php echo getHeadTags('Log In');?>
 </head>
 
-<body>
+<body onload="
+    <?php 
+        if(userIsLoggedIn()){echo 'showThingListPanels();';}
+        else{echo 'appendToWrapperMain(getLoginHtml({\'useGet\':true}));';}
+    ?>
+">
 	<?php echo getHeaderBarHtml(); ?>
 	
 	<main>
 		<div class="wrapperMain" id="wrapperMain">
-			<script>document.write(getLoginHtml({'useGet':true}));</script>
 		</div>
 	</main>
 </body>

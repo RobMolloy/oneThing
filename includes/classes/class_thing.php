@@ -11,7 +11,7 @@ class thing extends defaultObject {
     public $checks = ['user'=>True];
     public $labelrow = [];
     public $sensitivedatarow = [];
-    public $table = ['name'=>'ont_things','primarykey'=>'tng_id','userkey'=>'tng_usr_id'];
+    public $table = ['name'=>'ont_things','label'=>'thing','primarykey'=>'tng_id','userkey'=>'tng_usr_id'];
     
     function updateDatarowBeforeSave(){
         //~ edit datarow before save

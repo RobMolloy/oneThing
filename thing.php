@@ -6,7 +6,7 @@
 	<?php echo getHeadTags('Thing');?>
 </head>
 
-<body onload="addBlankThingFormToWrapperMain();getThingList();">
+<body onload="showBlankThingEditPanel();showThingListPanels();">
 	<?php echo getHeaderBarHtml(); ?>
     
 	<main>
