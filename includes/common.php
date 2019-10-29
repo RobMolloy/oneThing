@@ -102,10 +102,7 @@ function trigger_notice($notice){
 }
   
 function openDb(){
-    $local = True;
-    $dbCredsJsonString = file_get_contents('dbCreds/'.($local ? 'local' : 'server'));
-    $dbCreds=json_decode($dbCredsJsonString,True);
-
+    $dbCreds = dbCreds((True ? 'local' : 'server'));
 	$dbConn = new mysqli($dbCreds['host'],$dbCreds['dbUser'],$dbCreds['password'],$dbCreds['database']);
 
 	if($dbConn->connect_error){
@@ -114,6 +111,19 @@ function openDb(){
 	} else {
 		return $dbConn;
 	}
+}
+
+function dbCreds($case='local'){
+    //~ Is this a safe approach?
+    //~ It depends on your definition of safe.
+    //~ every developer can see the database connection details
+    switch($case){
+        case 'local':
+        return ["host"=>"localhost","dbUser"=>"rob","password"=>"robberrydb","database"=>"oneThingDB"];
+        
+        case 'server':
+        return ["host"=>"db774030390.hosting-data.io","dbUser"=>"dbo774030390","password"=>"uB&4}AeGXT'8jW[?iJ-Nn^eh","database"=>"db774030390"];
+    }
 }
 
 function getTableRowUsingId($tableName,$tablePrimaryKey,$id){

@@ -50,7 +50,7 @@ $latc = $lightAlertThemeColor;
     .centerContentsVertically {display:flex;align-items:center;}
     
     .wrapperMain {
-        min-width:45%;max-width:80vw;text-align:center;overflow-wrap:break-word;
+        min-width:30%;max-width:80vw;text-align:center;overflow-wrap:break-word;
         /*.singleColumn*/
         display:inline-grid;grid-template-columns:repeat(1,auto);grid-row-gap:20px;
     }
@@ -75,8 +75,8 @@ $latc = $lightAlertThemeColor;
     #responseLog {background-color:<?php echo $latc; ?>;position:fixed;display:inline-block;overflow-wrap:break-word;bottom:20px;right:20px;height:40vh;width:40vw;min-width:250px;border-radius:0 0 30px 0;overflow-y:auto;}
     
     @media(max-width:768px){
-        header{padding:0;flex-direction:column;justify-content:center;align-items:center;}
-        header > * {display:flex;justify-content:center;width:100%}
+        header{padding:0;/****singleColumn****/flex-direction:column;justify-content:center;align-items:center;}
+        header > * {/****centerContentsVertically****/display:flex;justify-content:center;width:100%}
         header button {width:100%;border:0;border-radius:0;}
         header img {max-width:100vw;height:auto;}
         
