@@ -8,7 +8,7 @@
 
 <body onload="
     <?php 
-        if(userIsLoggedIn()){echo 'showThingListPanels();';}
+        if(userIsLoggedIn()){echo 'goto(\'index.php\');';}
         else{echo 'appendToWrapperMain(getLoginHtml({\'useGet\':true}));';}
     ?>
 ">
@@ -18,4 +18,5 @@
 		<div class="wrapperMain" id="wrapperMain">
 		</div>
 	</main>
+    <div id="responseLogIcon" onclick="toggleResponseLog()"></div>
 </body>

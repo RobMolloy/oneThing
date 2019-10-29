@@ -40,7 +40,6 @@ function getHeadTags($title=''){
         <script>
             let emptyDatarows = {};
             emptyDatarows[\''.$tng->table['label'].'\'] = JSON.parse(\''.$tng->sendJson().'\').datarow;
-            
         </script>
         '.getJs()
 		.getCss();
@@ -60,7 +59,7 @@ function getJs(){
 
 function getHeaderBarHtml(){
     if(userIsLoggedIn()){
-        $loginOptionsHtml = '<button name="logoutbutton" onclick="ajaj({\'file\':\'login.nav.php\', \'nav\':\'submitLogout\', \'runOnReturn\':handleLogoutResponse})">Logout</button>';
+        $loginOptionsHtml = '<button name="logoutbutton" onclick="logout();">Logout</button>';
     } else {
         if(getCurrentFilename()=='login.php' || getCurrentFilename()=='index.php'){
             $loginOptionsHtml = '<button onclick="goto(\'signup.php\');">Sign Up</button>';
@@ -249,10 +248,7 @@ function bindParameters($stmt,$originalArray=[]){
 
 function newObject($objectLabel=''){
     return new $objLabel();
-} 
-//~ date functions
-/*use only timestamps for php - convert with js*/
-
+}
 
 
 ?>

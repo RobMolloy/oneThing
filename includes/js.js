@@ -21,39 +21,13 @@
         return element.nodeName==undefined ? document.getElementById(element) : element;
     }
     
-    function initObject(object){
-        return (isJsonString(object) ? JSON.parse(object) : object);
-    }
-    
-    function isJsonString(str) {
-        try {JSON.parse(str);return true;} catch(e) {return false;}
-    }
-	
-	function createHiddenJax(){
-        if(!document.getElementById('hiddenJax')){
-            var hjax = document.createElement("div");
-            hjax.setAttribute("id", "hiddenJax");
-            hjax.setAttribute("class", "hidden");
-            document.body.appendChild(hjax);
-        }
-	}
-	
-	function createResponseLog(){
-        if(!document.getElementById('responseLog')){
-            var rLog = document.createElement("div");
-            rLog.setAttribute("id", "responseLog");
-            rLog.setAttribute("class", "hidden");
-            document.body.appendChild(rLog);
-        }
-	}
-	
 	function getJsonFromGetArray(){
 		var getArray = getGetArray();
 		var json = {};
 		
 		if(getArray!={}){
 			var json = ('json' in getArray ? decodeURI(getArray.json) : getDefaultJsonString());
-			json = (typeof(json)=='object' ? json : JSON.parse(json));
+			json = initJson(json);
 		}
 		return json;
 	}
@@ -74,49 +48,6 @@
 		return getArray;
 	}
 	
-	function getDefaultJsonString(){
-		return JSON.stringify({
-			exists:false,
-			success:false,
-			valid:false,
-			newlyAdded:false,
-			datarow:{},
-			labelrow:{},
-			errors:{}
-		});
-	}
-	
-	function getDefaultJsonObject(){
-		return JSON.parse(getDefaultJsonString());
-	}
-	
-    function prettifyJson(json={}){
-        json = typeOf(json)=='string' ? JSON.parse(json) : json;
-        return '<pre>' + JSON.stringify(json,null,4) + '</pre>';
-    }
-    
-    function getContainerHtml(params={}){
-        var type = ('type' in params ? params.type : '');
-        var label = ('label' in params ? params.label : '');
-        var name = ('name' in params ? params.name : '');
-        var html = `<h1>${label}</h1><div class="${type}" id="${name}"></div>`;
-        
-        return html;
-    }
-	
-    function typeOf(obj) {
-        return typeof(obj);
-    }
-    
-    function toShortDate(timestamp){
-        let t = new Date(0);
-        t.setSeconds(timestamp);
-        
-        let formatted = t.toLocaleTimeString('en-GB');
-
-        return formatted;
-    }
-    
     function appendToWrapperMain(html){
         document.getElementById('wrapperMain').insertAdjacentHTML('beforeend',html);
     }
@@ -131,11 +62,6 @@
         
         if(position=='last'){appendToWrapperMain(html);}
         else{allPanels[position].insertAdjacentHTML('beforeBegin',html);}
-    }
-    
-    function toggleResponseLog(){
-        if(!document.getElementById('responseLog')){createResponseLog();}
-        document.getElementById('responseLog').classList.toggle("hidden");
     }
     
     function isset(array){
@@ -158,12 +84,86 @@
         window.location.href = file;
     }
     
+    //~ ************ Response Log Functions ***************/
+	function createResponseLog(){
+        if(!document.getElementById('responseLog')){
+            var rLog = document.createElement("div");
+            rLog.setAttribute("id", "responseLog");
+            rLog.setAttribute("class", "hidden");
+            document.body.appendChild(rLog);
+        }
+	}
+	
+    function showInResponseLog(json){
+        document.getElementById('responseLog').innerHTML = prettifyJson(json);
+    }
+    
+    function toggleResponseLog(){
+        if(!document.getElementById('responseLog')){createResponseLog();}
+        document.getElementById('responseLog').classList.toggle("hidden");
+    }
+    
+    
+    //~ ************ Json Functions ***************/
+    function initJson(json){
+        return (isJsonString(json) ? JSON.parse(json) : json);
+    }
+    
+    function isJsonString(str) {
+        try {JSON.parse(str);return true;} catch(e) {return false;}
+    }
+	
+    function prettifyJson(json={}){
+        json = isJsonString(json) ? JSON.parse(json) : json;
+        return '<pre>' + JSON.stringify(json,null,4) + '</pre>';
+    }
+    
+	function getDefaultJsonString(){
+		return JSON.stringify({
+			exists:false,
+			success:false,
+			valid:false,
+			newlyAdded:false,
+			datarow:{},
+			labelrow:{},
+			errors:{}
+		});
+	}
+	
+	function getDefaultJsonObject(){
+		return JSON.parse(getDefaultJsonString());
+	}
+    
+    
+    //~ ************ Date Functions ***************/
+    function toShortDate(timestamp){
+        let dt = new Date(timestamp*1000);
+        return dt.toLocaleDateString('en-GB');
+    }
+    
+    function toShortTime(timestamp){
+        let dt = new Date(timestamp*1000);
+        return dt.toLocaleTimeString('en-GB').slice(0, -3);
+    }
+    
+    function toShortDateTime(timestamp){
+        return `${toShortDate(timestamp)} ${toShortTime(timestamp)}`;
+    }
+    
+    function toFormattedDateTime(timestamp){
+        return isToday(timestamp) ? toShortTime(timestamp) : toShortDate(timestamp);
+    }
+    
+    function isToday(timestamp){
+        let dtInput = new Date(timestamp*1000);
+        var dtToday = new Date();
+        return dtInput.setHours(0,0,0,0) == dtToday.setHours(0,0,0,0);
+    }
+    
 	//~ ************ Login Functions ***************/
 	function getLoginHtml(params={}){
-		/*
-        */
         var json = ('json' in params ? params.json : getDefaultJsonString());
-		json = (typeof(json)=='object' ? json : JSON.parse(json));
+		json = initJson(json);
 		
 		var container = ('container' in params ? params.container : true);
 		var useGet = ('useGet' in params ? params.useGet : false);
@@ -191,7 +191,7 @@
         let f = getElementValues({'getValuesFrom':'loginForm'});
         
         let response = await ajax({'file':file,'f':f});
-        json = initObject(response);
+        json = initJson(response);
         console.log(json);
 		
 		let datarow = json.datarow;
@@ -203,29 +203,6 @@
         
     }
     
-	function handleLoginResponse(params={}){
-		var json = ('json' in params ? params.json : getDefaultJsonString());
-		json = (typeof(json)=='object' ? json : JSON.parse(json));
-		
-		var datarow = json.datarow;
-		var success = (!json.valid || !json.exists ? false : true);
-		var currentFile = getCurrentFilename();
-		var printTo = ('printTo' in params || params.printTo!=='' ? params.printTo : 'loginForm');
-		
-		if(!success && currentFile!='login.php'){
-			window.location.href = `login.php?json=${encodeURI(JSON.stringify(json))}`;
-			return;
-		}
-		if(!success){
-			document.getElementById(printTo).innerHTML = getLoginHtml({'json':json,'container':false});
-			return;
-		}
-		
-		if(success){
-			window.location.href = 'index.php';
-		}
-	}
-	
     //~ *********** Ajax Functions ************* //
     function ajax(params={}) {
         let file = ('file' in params ? params.file : ''); //~ !essential parameter!
@@ -234,11 +211,15 @@
         
         if(nav!=''){f.append('nav',nav);}
         
-        const request = new XMLHttpRequest();
         return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
             request.open("POST", file);
             request.onload = (()=>{
-                if (request.status == 200){resolve(request.response);} 
+                if (request.status == 200){
+                    //~ ONLY TRUE IN DEV ////////////////////////////////////////////////////////////
+                    if(true){createResponseLog();showInResponseLog(request.response);}
+                    resolve(request.response);
+                } 
                 else {reject(Error(request.statusText));}
             });
             request.onerror = (()=>{reject(Error("Network Error"));});
@@ -259,7 +240,7 @@
 	/*Sign up functions*/
 	function getSignupHtml(params={}){
 		var json = ('json' in params ? params.json : getDefaultJsonString());
-		json = (typeof(json)=='object' ? json : JSON.parse(json));
+		json = initJson(json);
 		var container = ('container' in params ? params.container : true);
 		var useGet = ('useGet' in params ? params.useGet : false);
 		
@@ -290,7 +271,7 @@
     
     async function submitSignup(){
         let response = await ajaxTarget({'file':'signup.nav.php?nav=submitSignup', 'getValuesFrom':'signupForm'});
-        let json = initObject(response);
+        let json = initJson(response);
         
 		var success = (!json.valid || !json.exists ? false : true);
 		
@@ -302,6 +283,11 @@
 		}
     }
 	
+    async function logout(){
+        let response = await ajax({'file':'login.nav.php?nav=submitLogout'});
+        let json = initJson(response);
+        goto('index.php');
+    }
 	
 	function handleLogoutResponse(params={}){
 		window.location.href = 'index.php';
@@ -317,7 +303,7 @@
         f.append('direction',direction);
         
         let response = await ajax({'file':'thing.nav.php?nav=getThingList','f':f});
-        let json = initObject(response);
+        let json = initJson(response);
         return json;
         //~ handleThingListResponse({'json':json});
     }
@@ -382,7 +368,7 @@
         f.append('tng_id',`${tng_id}`);
         
         let response = await ajax({'file':'thing.nav.php?nav=deleteThing', 'f':f});
-        let json = initObject(response);
+        let json = initJson(response);
         if(json.success){
             let tng = new thing(json);
             tng.removePanel();
@@ -396,7 +382,7 @@
         let thingPanelId = `thingPanel${tng_id==`` ? `` : `_${tng_id}`}`;
         
         let response = await ajaxTarget({'file':'thing.nav.php?nav=saveThing', 'f':f, 'getValuesFrom':thingPanelId});
-        let json = initObject(response);
+        let json = initJson(response);
         if(json.newlyAdded){
             let tng = new thing(json);
             tng.buildPanel(1);
@@ -426,7 +412,7 @@
         }
         
         init(object={}){
-            object = initObject(object);
+            object = initJson(object);
             let json = isset(()=>object.json) ? object.json : object;
             
             this.exists = isset(()=>json.exists) ? json.exists : this.exists;
@@ -496,7 +482,7 @@
         getDisplayPanelHtml(){
             return `<div class="titleBar">
                         <h3 id="tng_title_${this.datarow.tng_id}">${this.datarow.tng_title}</h3>
-                        <h5>${toShortDate(this.datarow.tng_time_added)}</h5>
+                        <h5>${toFormattedDateTime(this.datarow.tng_time_added)}</h5>
                     </div>
                     <div class="textBlock">${this.datarow.tng_description}</div>
                     <div class="buttonBar">
@@ -554,54 +540,3 @@
             this.updatePanel();
         }
     }
-
-/*
-	function ajaj(params={}){
-		//~ var parameters = use ajaj.php
-		//~ initialize parameters
-		var file = ('file' in params ? params.file : ''); //~ !essential parameter!
-		var nav = ('nav' in params ? params.nav : ''); //~ !pass in file or essential parameter!
-		var printTo = ('printTo' in params ? params.printTo : ''); //~ printTo can pass idString or elm 
-		var runOnReturn = ('runOnReturn' in params ? params.runOnReturn : '');
-		var additionalParameters = ('additionalParameters' in params ? params.additionalParameters : {}); //~ parameters to be used with the response text
-		var f = ('f' in params && typeof(f)!='string' ? params.f : new FormData);
-		var getValuesFrom = ('getValuesFrom' in params ? params.getValuesFrom : ''); //~ getValuesFrom can pass idString or elm 
-		var loadText = ('loadText' in params ? params.loadText : true);
-		
-		//~ populate formdata
-		if(nav!=''){f.append('nav',nav);}
-		f = getElementValues({'getValuesFrom':getValuesFrom, 'f':f});
-		
-		//~ initialize printToElement, createHiddenJax if necessary
-		if(printTo=='' || printTo.toLowerCase=='hiddenjax'){createHiddenJax(); printTo='hiddenJax';}
-		var printToElement = (typeof(printTo)=='string' ? document.getElementById(printTo) : printTo);
-		
-		//~ show load text if true
-		if(loadText){printToElement.innerHTML = 'processing...';}
-		
-		//~ make the xml http request to file using the form data
-		const request = new XMLHttpRequest();
-		request.onload=function() {
-			if(this.status === 200){
-				var response = initObject(this.responseText);
-                
-				//~ ONLY TRUE IN DEV ////////////////////////////////////////////////////////////
-				if(true){createResponseLog();document.getElementById('responseLog').innerHTML = prettifyJson(response);}
-				
-                //~ if no function provided print responseText to printToElement
-				if(runOnReturn==''){printToElement.innerHTML = response;} 
-                else {
-					runOnReturn = (typeof(runOnReturn)=='string' ? window[runOnReturn] : runOnReturn);
-					
-					var runOnReturnParams = additionalParameters;
-					runOnReturnParams.json = response;
-					runOnReturnParams.printTo = ('printTo' in runOnReturnParams ? runOnReturnParams.printTo : printTo);
-					runOnReturn(runOnReturnParams);
-				}
-			}
-		}
-		request.open("post", file);
-		request.send(f);
-	}
-    */
-    

@@ -6,12 +6,17 @@
 	<?php echo getHeadTags('Sign Up');?>
 </head>
 
-<body>
+<body onload="
+    <?php 
+        if(userIsLoggedIn()){echo 'goto(\'index.php\');';}
+        else{echo 'appendToWrapperMain(getSignupHtml({\'useGet\':true}));';}
+    ?>
+">
 	<?php echo getHeaderBarHtml(); ?>
 	
 	<main>
 		<div class="wrapperMain" id="wrapperMain">
-			<script>document.write(getSignupHtml({'useGet':true}));</script>
 		</div>
 	</main>
+    <div id="responseLogIcon" onclick="toggleResponseLog()"></div>
 </body>

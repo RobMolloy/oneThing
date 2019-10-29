@@ -17,7 +17,7 @@ $latc = $lightAlertThemeColor;
     *       {margin:0;padding:0;color:<?php echo $dtc;?>;box-sizing:border-box;}
     
     body    {background-color:<?php echo $ltc;?>;font-family:'Montserrat';}
-    main    {text-align:center;margin:20px auto 0 auto;}
+    main    {text-align:center;margin:20px auto 20px auto;}
     a       {text-decoration:none;}
 
     header  {display:flex;padding:5px;border-bottom:2px solid <?php echo $dtc;?>;overflow:auto;background:<?php echo $btc;?>;}
@@ -68,7 +68,8 @@ $latc = $lightAlertThemeColor;
     .editMode {text-align:left;}
     
     .titleBar {display:flex;}
-    .titleBar > *:nth-child(1){flex:1;}
+    .titleBar > * {display:flex;align-items:center;}
+    .titleBar > *:nth-child(1) {flex:1;}
     
     #responseLogIcon {background-image:url("img/icon.png");background-size:cover;position:fixed;bottom:20px;right:20px;min-height:50px;min-width:50px;cursor:pointer;z-index:1;}
     #responseLog {background-color:<?php echo $latc; ?>;position:fixed;display:inline-block;overflow-wrap:break-word;bottom:20px;right:20px;height:40vh;width:40vw;min-width:250px;border-radius:0 0 30px 0;overflow-y:auto;}
@@ -77,6 +78,9 @@ $latc = $lightAlertThemeColor;
         header{padding:0;flex-direction:column;justify-content:center;align-items:center;}
         header > * {display:flex;justify-content:center;width:100%}
         header button {width:100%;border:0;border-radius:0;}
+        header img {max-width:100vw;height:auto;}
+        
+        .wrapperMain {min-width:100vw;max-width:100vw;}
     }
     
     </style>

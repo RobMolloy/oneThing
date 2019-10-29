@@ -18,4 +18,5 @@
 		<div class="wrapperMain" id="wrapperMain">
 		</div>
 	</main>
+    <div id="responseLogIcon" onclick="toggleResponseLog()"></div>
 </body>
