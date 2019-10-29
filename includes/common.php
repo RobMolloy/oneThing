@@ -8,8 +8,8 @@ global $projectLabel;
 global $projectName;
 
 $dev = false;
-$projectLabel = 'One Thing2';
-$projectName = 'oneThing2';
+$projectLabel = 'One Thing';
+$projectName = 'oneThing';
 
 include('classes/class_defaultObject.php');
 include('classes/class_defaultListObject.php');

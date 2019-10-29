@@ -187,7 +187,7 @@
     async function submitLogin(){
 		let currentFile = getCurrentFilename();
         
-        let file = 'login.nav.php?nav=submitLogin';
+        let file = 'nav/login.nav.php?nav=submitLogin';
         let f = getElementValues({'getValuesFrom':'loginForm'});
         
         let response = await ajax({'file':file,'f':f});
@@ -270,7 +270,7 @@
 	}
     
     async function submitSignup(){
-        let response = await ajaxTarget({'file':'signup.nav.php?nav=submitSignup', 'getValuesFrom':'signupForm'});
+        let response = await ajaxTarget({'file':'nav/signup.nav.php?nav=submitSignup', 'getValuesFrom':'signupForm'});
         let json = initJson(response);
         
 		var success = (!json.valid || !json.exists ? false : true);
@@ -284,7 +284,7 @@
     }
 	
     async function logout(){
-        let response = await ajax({'file':'login.nav.php?nav=submitLogout'});
+        let response = await ajax({'file':'nav/login.nav.php?nav=submitLogout'});
         let json = initJson(response);
         goto('index.php');
     }
@@ -301,11 +301,9 @@
         let f = new FormData();
         f.append('order',order);
         f.append('direction',direction);
-        
-        let response = await ajax({'file':'thing.nav.php?nav=getThingList','f':f});
+        let response = await ajax({'file':'nav/thing.nav.php?nav=getThingList','f':f});
         let json = initJson(response);
         return json;
-        //~ handleThingListResponse({'json':json});
     }
     
     async function showThingListPanels(){
@@ -339,7 +337,7 @@
         var f = new FormData(); 
         f.append('tng_id',tng_id);
         
-        return await ajax({'file':'thing.nav.php?nav=getThingJson','f':f});
+        return await ajax({'file':'nav/thing.nav.php?nav=getThingJson','f':f});
     }
     
     async function switchThingDisplayPanelToEdit(thingJson={}){
@@ -367,7 +365,7 @@
         var f = new FormData();
         f.append('tng_id',`${tng_id}`);
         
-        let response = await ajax({'file':'thing.nav.php?nav=deleteThing', 'f':f});
+        let response = await ajax({'file':'nav/thing.nav.php?nav=deleteThing', 'f':f});
         let json = initJson(response);
         if(json.success){
             let tng = new thing(json);
@@ -381,7 +379,7 @@
         
         let thingPanelId = `thingPanel${tng_id==`` ? `` : `_${tng_id}`}`;
         
-        let response = await ajaxTarget({'file':'thing.nav.php?nav=saveThing', 'f':f, 'getValuesFrom':thingPanelId});
+        let response = await ajaxTarget({'file':'nav/thing.nav.php?nav=saveThing', 'f':f, 'getValuesFrom':thingPanelId});
         let json = initJson(response);
         if(json.newlyAdded){
             let tng = new thing(json);
